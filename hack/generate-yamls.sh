@@ -35,11 +35,12 @@
 #   this directory will be deleted.**
 # * `$KO_DOCKER_REPO` If not set, use ko.local as the registry.
 
-# export KO_DOCKER_REPO="us-central1-docker.pkg.dev/triple-whale-staging/knative"
 # export YAML_LIST=$(mktemp) && export REPO_ROOT_DIR=$(pwd) && ./hack/generate-yamls.sh "${REPO_ROOT_DIR}" "${YAML_LIST}"
 
 set -o errexit
 set -o pipefail
+
+KO_DOCKER_REPO="us-central1-docker.pkg.dev/shofifi/knative"
 
 readonly YAML_REPO_ROOT=${1:?"First argument must be the repo root dir"}
 readonly YAML_LIST_FILE=${2:?"Second argument must be the output file"}
