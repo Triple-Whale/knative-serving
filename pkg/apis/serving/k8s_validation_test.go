@@ -150,6 +150,13 @@ func withPodSpecSchedulerNameEnabled() configOption {
 	}
 }
 
+func withPodSpecProcessNamespaceEnabled() configOption {
+	return func(cfg *config.Config) *config.Config {
+		cfg.Features.PodSpecShareProcessNamespace = config.Enabled
+		return cfg
+	}
+}
+
 func withPodSpecInitContainersEnabled() configOption {
 	return func(cfg *config.Config) *config.Config {
 		cfg.Features.PodSpecInitContainers = config.Enabled
@@ -1135,6 +1142,7 @@ func TestPodSpecMultiContainerValidation(t *testing.T) {
 
 func TestPodSpecFeatureValidation(t *testing.T) {
 	runtimeClassName := "test"
+	shareProcessNamespace := true
 
 	featureData := []struct {
 		name        string
@@ -1287,6 +1295,16 @@ func TestPodSpecFeatureValidation(t *testing.T) {
 			Paths:   []string{"schedulerName"},
 		},
 		cfgOpts: []configOption{withPodSpecSchedulerNameEnabled()},
+	}, {
+		name: "ShareProcessNamespace",
+		featureSpec: corev1.PodSpec{
+			ShareProcessNamespace: &shareProcessNamespace,
+		},
+		err: &apis.FieldError{
+			Message: "must not set the field(s)",
+			Paths:   []string{"shareProcessNamespace"},
+		},
+		cfgOpts: []configOption{withPodSpecProcessNamespaceEnabled()},
 	}}
 
 	featureTests := []struct {
@@ -1654,7 +1672,7 @@ func TestContainerValidation(t *testing.T) {
 					ProbeHandler: corev1.ProbeHandler{},
 				},
 			},
-			want: apis.ErrMissingOneOf("livenessProbe.httpGet", "livenessProbe.tcpSocket", "livenessProbe.exec"),
+			want: apis.ErrMissingOneOf("livenessProbe.httpGet", "livenessProbe.tcpSocket", "livenessProbe.exec", "livenessProbe.grpc"),
 		}, {
 			name: "invalid with multiple handlers",
 			c: corev1.Container{
@@ -1888,6 +1906,39 @@ func TestContainerValidation(t *testing.T) {
 			},
 			want: apis.ErrDisallowedFields("lifecycle").Also(
 				apis.ErrMissingField("image")),
+		}, {
+			name: "valid grpc probe",
+			c: corev1.Container{
+				Image: "foo",
+				ReadinessProbe: &corev1.Probe{
+					PeriodSeconds:    1,
+					TimeoutSeconds:   1,
+					SuccessThreshold: 1,
+					FailureThreshold: 3,
+					ProbeHandler: corev1.ProbeHandler{
+						GRPC: &corev1.GRPCAction{
+							Port: 46,
+						},
+					},
+				},
+			},
+		}, {
+			name: "valid grpc probe with service",
+			c: corev1.Container{
+				Image: "foo",
+				ReadinessProbe: &corev1.Probe{
+					PeriodSeconds:    1,
+					TimeoutSeconds:   1,
+					SuccessThreshold: 1,
+					FailureThreshold: 3,
+					ProbeHandler: corev1.ProbeHandler{
+						GRPC: &corev1.GRPCAction{
+							Port:    46,
+							Service: ptr.String("foo"),
+						},
+					},
+				},
+			},
 		},
 	}
 	tests = append(tests, getCommonContainerValidationTestCases()...)

@@ -182,13 +182,11 @@ func generateTrafficAtFixedConcurrencyWithLoad(ctx *TestContext, concurrency int
 	attacker := vegeta.NewAttacker(
 		vegeta.Timeout(0), // No timeout is enforced at all.
 		vegeta.Workers(uint64(concurrency)),
-		vegeta.MaxWorkers(uint64(concurrency)))
-	target, err := getVegetaTarget(
-		ctx.clients.KubeClient, ctx.resources.Route.Status.URL.URL().Hostname(), pkgTest.Flags.IngressEndpoint, test.ServingFlags.ResolvableDomain, vegetaParam, vegetaValue)
-	if err != nil {
-		return fmt.Errorf("error creating vegeta target: %w", err)
-	}
+		vegeta.MaxWorkers(uint64(concurrency)),
+		vegeta.Client(newVegetaHTTPClient(ctx, ctx.resources.Route.Status.URL.URL())),
+	)
 
+	target := getVegetaTarget(ctx.resources.Route.Status.URL.URL().Hostname(), vegetaParam, vegetaValue, test.ServingFlags.HTTPS)
 	ctx.t.Logf("Maintaining %d concurrent requests.", concurrency)
 	return generateTraffic(ctx, attacker, pacer, stopChan, target)
 }

@@ -33,6 +33,7 @@ import (
 	"knative.dev/pkg/webhook/resourcesemantics"
 	"knative.dev/pkg/webhook/resourcesemantics/defaulting"
 	"knative.dev/pkg/webhook/resourcesemantics/validation"
+	servingv1beta1 "knative.dev/serving/pkg/apis/serving/v1beta1"
 
 	// resource validation types
 	net "knative.dev/networking/pkg/apis/networking/v1alpha1"
@@ -63,6 +64,8 @@ var types = map[schema.GroupVersionKind]resourcesemantics.GenericCRD{
 	net.SchemeGroupVersion.WithKind("Certificate"):       &net.Certificate{},
 	net.SchemeGroupVersion.WithKind("Ingress"):           &net.Ingress{},
 	net.SchemeGroupVersion.WithKind("ServerlessService"): &net.ServerlessService{},
+
+	servingv1beta1.SchemeGroupVersion.WithKind("DomainMapping"): &servingv1beta1.DomainMapping{},
 }
 
 var serviceValidation = validation.NewCallback(

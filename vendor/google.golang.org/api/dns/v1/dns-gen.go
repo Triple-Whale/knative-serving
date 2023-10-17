@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC.
+// Copyright 2023 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -7,6 +7,17 @@
 // Package dns provides access to the Cloud DNS API.
 //
 // For product documentation, see: https://cloud.google.com/dns/docs
+//
+// # Library status
+//
+// These client libraries are officially supported by Google. However, this
+// library is considered complete and is in maintenance mode. This means
+// that we will address critical bugs and security issues but will not add
+// any new features.
+//
+// When possible, we recommend using our newer
+// [Cloud Client Libraries for Go](https://pkg.go.dev/cloud.google.com/go)
+// that are still actively being worked and iterated on.
 //
 // # Creating a client
 //
@@ -17,28 +28,31 @@
 //	ctx := context.Background()
 //	dnsService, err := dns.NewService(ctx)
 //
-// In this example, Google Application Default Credentials are used for authentication.
-//
-// For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
+// In this example, Google Application Default Credentials are used for
+// authentication. For information on how to create and obtain Application
+// Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
 //
 // # Other authentication options
 //
-// By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
+// By default, all available scopes (see "Constants") are used to authenticate.
+// To restrict scopes, use [google.golang.org/api/option.WithScopes]:
 //
 //	dnsService, err := dns.NewService(ctx, option.WithScopes(dns.NdevClouddnsReadwriteScope))
 //
-// To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
+// To use an API key for authentication (note: some APIs do not support API
+// keys), use [google.golang.org/api/option.WithAPIKey]:
 //
 //	dnsService, err := dns.NewService(ctx, option.WithAPIKey("AIza..."))
 //
-// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
+// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth
+// flow, use [google.golang.org/api/option.WithTokenSource]:
 //
 //	config := &oauth2.Config{...}
 //	// ...
 //	token, err := config.Exchange(ctx, ...)
 //	dnsService, err := dns.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
 //
-// See https://godoc.org/google.golang.org/api/option/ for details on options.
+// See [google.golang.org/api/option.ClientOption] for details on options.
 package dns // import "google.golang.org/api/dns/v1"
 
 import (
@@ -75,6 +89,7 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 var _ = internaloption.WithDefaultEndpoint
+var _ = internal.Version
 
 const apiId = "dns:v1"
 const apiName = "dns"
@@ -780,18 +795,21 @@ type GoogleIamV1Binding struct {
 	// `allUsers`: A special identifier that represents anyone who is on the
 	// internet; with or without a Google account. *
 	// `allAuthenticatedUsers`: A special identifier that represents anyone
-	// who is authenticated with a Google account or a service account. *
-	// `user:{emailid}`: An email address that represents a specific Google
-	// account. For example, `alice@example.com` . *
-	// `serviceAccount:{emailid}`: An email address that represents a Google
-	// service account. For example,
+	// who is authenticated with a Google account or a service account. Does
+	// not include identities that come from external identity providers
+	// (IdPs) through identity federation. * `user:{emailid}`: An email
+	// address that represents a specific Google account. For example,
+	// `alice@example.com` . * `serviceAccount:{emailid}`: An email address
+	// that represents a Google service account. For example,
 	// `my-other-app@appspot.gserviceaccount.com`. *
 	// `serviceAccount:{projectid}.svc.id.goog[{namespace}/{kubernetes-sa}]`:
 	//  An identifier for a Kubernetes service account
 	// (https://cloud.google.com/kubernetes-engine/docs/how-to/kubernetes-service-accounts).
 	// For example, `my-project.svc.id.goog[my-namespace/my-kubernetes-sa]`.
 	// * `group:{emailid}`: An email address that represents a Google group.
-	// For example, `admins@example.com`. *
+	// For example, `admins@example.com`. * `domain:{domain}`: The G Suite
+	// domain (primary) that represents all the users of that domain. For
+	// example, `google.com` or `example.com`. *
 	// `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
 	// unique identifier) representing a user that has been recently
 	// deleted. For example, `alice@example.com?uid=123456789012345678901`.
@@ -808,9 +826,7 @@ type GoogleIamV1Binding struct {
 	// that has been recently deleted. For example,
 	// `admins@example.com?uid=123456789012345678901`. If the group is
 	// recovered, this value reverts to `group:{emailid}` and the recovered
-	// group retains the role in the binding. * `domain:{domain}`: The G
-	// Suite domain (primary) that represents all the users of that domain.
-	// For example, `google.com` or `example.com`.
+	// group retains the role in the binding.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to the list of `members`, or principals.
@@ -926,7 +942,7 @@ func (s *GoogleIamV1GetPolicyOptions) MarshalJSON() ([]byte, error) {
 // both. To learn which resources support conditions in their IAM
 // policies, see the IAM documentation
 // (https://cloud.google.com/iam/help/conditions/resource-policies).
-// **JSON example:** { "bindings": [ { "role":
+// **JSON example:** ``` { "bindings": [ { "role":
 // "roles/resourcemanager.organizationAdmin", "members": [
 // "user:mike@example.com", "group:admins@example.com",
 // "domain:google.com",
@@ -935,17 +951,17 @@ func (s *GoogleIamV1GetPolicyOptions) MarshalJSON() ([]byte, error) {
 // "user:eve@example.com" ], "condition": { "title": "expirable access",
 // "description": "Does not grant access after Sep 2020", "expression":
 // "request.time < timestamp('2020-10-01T00:00:00.000Z')", } } ],
-// "etag": "BwWWja0YfJA=", "version": 3 } **YAML example:** bindings: -
-// members: - user:mike@example.com - group:admins@example.com -
-// domain:google.com -
+// "etag": "BwWWja0YfJA=", "version": 3 } ``` **YAML example:** ```
+// bindings: - members: - user:mike@example.com -
+// group:admins@example.com - domain:google.com -
 // serviceAccount:my-project-id@appspot.gserviceaccount.com role:
 // roles/resourcemanager.organizationAdmin - members: -
 // user:eve@example.com role: roles/resourcemanager.organizationViewer
 // condition: title: expirable access description: Does not grant access
 // after Sep 2020 expression: request.time <
 // timestamp('2020-10-01T00:00:00.000Z') etag: BwWWja0YfJA= version: 3
-// For a description of IAM and its features, see the IAM documentation
-// (https://cloud.google.com/iam/docs/).
+// ``` For a description of IAM and its features, see the IAM
+// documentation (https://cloud.google.com/iam/docs/).
 type GoogleIamV1Policy struct {
 	// AuditConfigs: Specifies cloud audit logging configuration for this
 	// policy.
@@ -1366,6 +1382,11 @@ type ManagedZoneForwardingConfigNameServerTarget struct {
 	// Ipv4Address: IPv4 address of a target name server.
 	Ipv4Address string `json:"ipv4Address,omitempty"`
 
+	// Ipv6Address: IPv6 address of a target name server. Does not accept
+	// both fields (ipv4 & ipv6) being populated. Public preview as of
+	// November 2022.
+	Ipv6Address string `json:"ipv6Address,omitempty"`
+
 	Kind string `json:"kind,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ForwardingPath") to
@@ -1508,12 +1529,16 @@ func (s *ManagedZonePeeringConfigTargetNetwork) MarshalJSON() ([]byte, error) {
 }
 
 type ManagedZonePrivateVisibilityConfig struct {
+	// GkeClusters: The list of Google Kubernetes Engine clusters that can
+	// see this zone.
+	GkeClusters []*ManagedZonePrivateVisibilityConfigGKECluster `json:"gkeClusters,omitempty"`
+
 	Kind string `json:"kind,omitempty"`
 
 	// Networks: The list of VPC networks that can see this zone.
 	Networks []*ManagedZonePrivateVisibilityConfigNetwork `json:"networks,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// ForceSendFields is a list of field names (e.g. "GkeClusters") to
 	// unconditionally include in API requests. By default, fields with
 	// empty or default values are omitted from API requests. However, any
 	// non-pointer, non-interface field appearing in ForceSendFields will be
@@ -1521,10 +1546,10 @@ type ManagedZonePrivateVisibilityConfig struct {
 	// This may be used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Kind") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "GkeClusters") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -1532,6 +1557,40 @@ type ManagedZonePrivateVisibilityConfig struct {
 
 func (s *ManagedZonePrivateVisibilityConfig) MarshalJSON() ([]byte, error) {
 	type NoMethod ManagedZonePrivateVisibilityConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ManagedZonePrivateVisibilityConfigGKECluster struct {
+	// GkeClusterName: The resource name of the cluster to bind this
+	// ManagedZone to. This should be specified in the format like:
+	// projects/*/locations/*/clusters/*. This is referenced from GKE
+	// projects.locations.clusters.get API:
+	// https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters/get
+	GkeClusterName string `json:"gkeClusterName,omitempty"`
+
+	Kind string `json:"kind,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "GkeClusterName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GkeClusterName") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ManagedZonePrivateVisibilityConfigGKECluster) MarshalJSON() ([]byte, error) {
+	type NoMethod ManagedZonePrivateVisibilityConfigGKECluster
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -2066,8 +2125,12 @@ type PolicyAlternativeNameServerConfigTargetNameServer struct {
 	// VPC.
 	ForwardingPath string `json:"forwardingPath,omitempty"`
 
-	// Ipv4Address: IPv4 address to forward to.
+	// Ipv4Address: IPv4 address to forward queries to.
 	Ipv4Address string `json:"ipv4Address,omitempty"`
+
+	// Ipv6Address: IPv6 address to forward to. Does not accept both fields
+	// (ipv4 & ipv6) being populated. Public preview as of November 2022.
+	Ipv6Address string `json:"ipv6Address,omitempty"`
 
 	Kind string `json:"kind,omitempty"`
 
@@ -2327,12 +2390,12 @@ func (s *RRSetRoutingPolicy) MarshalJSON() ([]byte, error) {
 // routes based on the geo location of the querying user.
 type RRSetRoutingPolicyGeoPolicy struct {
 	// EnableFencing: Without fencing, if health check fails for all
-	// configured items in the current geo bucket, we'll failover to the
-	// next nearest geo bucket. With fencing, if health check is enabled, as
-	// long as some targets in the current geo bucket are healthy, we'll
-	// return only the healthy targets. However, if they're all unhealthy,
-	// we won't failover to the next nearest bucket, we'll simply return all
-	// the items in the current bucket even though they're unhealthy.
+	// configured items in the current geo bucket, we failover to the next
+	// nearest geo bucket. With fencing, if health checking is enabled, as
+	// long as some targets in the current geo bucket are healthy, we return
+	// only the healthy targets. However, if all targets are unhealthy, we
+	// don't failover to the next nearest bucket; instead, we return all the
+	// items in the current bucket even when all targets are unhealthy.
 	EnableFencing bool `json:"enableFencing,omitempty"`
 
 	// Items: The primary geo routing configuration. If there are multiple
@@ -2382,8 +2445,8 @@ type RRSetRoutingPolicyGeoPolicyGeoPolicyItem struct {
 	Rrdatas []string `json:"rrdatas,omitempty"`
 
 	// SignatureRrdatas: DNSSEC generated signatures for all the rrdata
-	// within this item. Note that if health checked targets are provided
-	// for DNSSEC enabled zones, there's a restriction of 1 ip per item. .
+	// within this item. If health checked targets are provided for DNSSEC
+	// enabled zones, there's a restriction of 1 IP address per item.
 	SignatureRrdatas []string `json:"signatureRrdatas,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -2442,10 +2505,15 @@ func (s *RRSetRoutingPolicyHealthCheckTargets) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// RRSetRoutingPolicyLoadBalancerTarget: The configuration for an
+// individual load balancer to health check.
 type RRSetRoutingPolicyLoadBalancerTarget struct {
-	// IpAddress: The frontend IP address of the
+	// IpAddress: The frontend IP address of the load balancer to health
+	// check.
 	IpAddress string `json:"ipAddress,omitempty"`
 
+	// IpProtocol: The protocol of the load balancer to health check.
+	//
 	// Possible values:
 	//   "undefined"
 	//   "tcp"
@@ -2454,25 +2522,34 @@ type RRSetRoutingPolicyLoadBalancerTarget struct {
 
 	Kind string `json:"kind,omitempty"`
 
+	// LoadBalancerType: The type of load balancer specified by this target.
+	// This value must match the configuration of the load balancer located
+	// at the LoadBalancerTarget's IP address, port, and region. Use the
+	// following: - *regionalL4ilb*: for a regional internal passthrough
+	// Network Load Balancer. - *regionalL7ilb*: for a regional internal
+	// Application Load Balancer. - *globalL7ilb*: for a global internal
+	// Application Load Balancer.
+	//
 	// Possible values:
 	//   "none"
+	//   "globalL7ilb"
 	//   "regionalL4ilb"
+	//   "regionalL7ilb"
 	LoadBalancerType string `json:"loadBalancerType,omitempty"`
 
-	// NetworkUrl: The fully qualified url of the network on which the ILB
-	// is
+	// NetworkUrl: The fully qualified URL of the network that the load
+	// balancer is attached to. This should be formatted like
+	// https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}
+	// .
 	NetworkUrl string `json:"networkUrl,omitempty"`
 
-	// Port: Load Balancer to health check. The configured port of the Load
-	// Balancer.
+	// Port: The configured port of the load balancer.
 	Port string `json:"port,omitempty"`
 
-	// Project: present. This should be formatted like
-	// https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}
-	// The project ID in which the ILB exists.
+	// Project: The project ID in which the load balancer is located.
 	Project string `json:"project,omitempty"`
 
-	// Region: The region for regional ILBs.
+	// Region: The region in which the load balancer is located.
 	Region string `json:"region,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "IpAddress") to
@@ -2510,6 +2587,10 @@ type RRSetRoutingPolicyPrimaryBackupPolicy struct {
 
 	Kind string `json:"kind,omitempty"`
 
+	// PrimaryTargets: Endpoints that are health checked before making the
+	// routing decision. Unhealthy endpoints are omitted from the results.
+	// If all endpoints are unhealthy, we serve a response based on the
+	// backup_geo_targets.
 	PrimaryTargets *RRSetRoutingPolicyHealthCheckTargets `json:"primaryTargets,omitempty"`
 
 	// TrickleTraffic: When serving state is PRIMARY, this field provides
@@ -2588,12 +2669,12 @@ func (s *RRSetRoutingPolicyWrrPolicy) MarshalJSON() ([]byte, error) {
 // RRSetRoutingPolicyWrrPolicyWrrPolicyItem: A routing block which
 // contains the routing information for one WRR item.
 type RRSetRoutingPolicyWrrPolicyWrrPolicyItem struct {
-	// HealthCheckedTargets: endpoints that need to be health checked before
-	// making the routing decision. The unhealthy endpoints will be omitted
-	// from the result. If all endpoints within a buckete are unhealthy,
-	// we'll choose a different bucket (sampled w.r.t. its weight) for
-	// responding. Note that if DNSSEC is enabled for this zone, only one of
-	// rrdata or health_checked_targets can be set.
+	// HealthCheckedTargets: Endpoints that are health checked before making
+	// the routing decision. The unhealthy endpoints are omitted from the
+	// result. If all endpoints within a bucket are unhealthy, we choose a
+	// different bucket (sampled with respect to its weight) for responding.
+	// If DNSSEC is enabled for this zone, only one of rrdata or
+	// health_checked_targets can be set.
 	HealthCheckedTargets *RRSetRoutingPolicyHealthCheckTargets `json:"healthCheckedTargets,omitempty"`
 
 	Kind string `json:"kind,omitempty"`
@@ -2602,14 +2683,15 @@ type RRSetRoutingPolicyWrrPolicyWrrPolicyItem struct {
 
 	// SignatureRrdatas: DNSSEC generated signatures for all the rrdata
 	// within this item. Note that if health checked targets are provided
-	// for DNSSEC enabled zones, there's a restriction of 1 ip per item. .
+	// for DNSSEC enabled zones, there's a restriction of 1 IP address per
+	// item.
 	SignatureRrdatas []string `json:"signatureRrdatas,omitempty"`
 
-	// Weight: The weight corresponding to this subset of rrdata. When
-	// multiple WeightedRoundRobinPolicyItems are configured, the
-	// probability of returning an rrset is proportional to its weight
-	// relative to the sum of weights configured for all items. This weight
-	// should be non-negative.
+	// Weight: The weight corresponding to this WrrPolicyItem object. When
+	// multiple WrrPolicyItem objects are configured, the probability of
+	// returning an WrrPolicyItem object's data is proportional to its
+	// weight relative to the sum of weights configured for all items. This
+	// weight must be non-negative.
 	Weight float64 `json:"weight,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -2659,10 +2741,10 @@ type ResourceRecordSet struct {
 	// Name: For example, www.example.com.
 	Name string `json:"name,omitempty"`
 
-	// RoutingPolicy: Configures dynamic query responses based on geo
-	// location of querying user or a weighted round robin based routing
-	// policy. A ResourceRecordSet should only have either rrdata (static)
-	// or routing_policy (dynamic). An error is returned otherwise.
+	// RoutingPolicy: Configures dynamic query responses based on either the
+	// geo location of the querying user or a weighted round robin based
+	// routing policy. A valid ResourceRecordSet contains only rrdata (for
+	// static resolution) or a routing_policy (for dynamic resolution).
 	RoutingPolicy *RRSetRoutingPolicy `json:"routingPolicy,omitempty"`
 
 	// Rrdatas: As defined in RFC 1035 (section 5) and RFC 1034 (section
@@ -2722,12 +2804,12 @@ type ResourceRecordSetsListResponse struct {
 	// NextPageToken: The presence of this field indicates that there exist
 	// more results following your last page of results in pagination order.
 	// To fetch them, make another list request using this value as your
-	// pagination token. This lets you retrieve complete contents of even
-	// larger collections, one page at a time. However, if the contents of
-	// the collection change between the first and last paginated list
-	// request, the set of elements returned are an inconsistent view of the
-	// collection. You cannot retrieve a consistent snapshot of a collection
-	// larger than the maximum page size.
+	// pagination token. This lets you retrieve the complete contents of
+	// even larger collections, one page at a time. However, if the
+	// collection changes between paginated list requests, the set of
+	// elements returned is an inconsistent view of the collection. You
+	// cannot retrieve a consistent snapshot of a collection larger than the
+	// maximum page size.
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// Rrsets: The resource record set resources.
@@ -2793,11 +2875,11 @@ func (s *ResponseHeader) MarshalJSON() ([]byte, error) {
 type ResponsePoliciesListResponse struct {
 	Header *ResponseHeader `json:"header,omitempty"`
 
-	// NextPageToken: The presence of this field indicates that there exist
-	// more results following your last page of results in pagination order.
-	// To fetch them, make another list request using this value as your
-	// page token. This lets you the complete contents of even very large
-	// collections one page at a time. However, if the contents of the
+	// NextPageToken: The presence of this field indicates that more results
+	// exist following your last page of results in pagination order. To
+	// fetch them, make another list request by using this value as your
+	// page token. This lets you view the complete contents of even very
+	// large collections one page at a time. However, if the contents of the
 	// collection change between the first and last paginated list request,
 	// the set of all elements returned are an inconsistent view of the
 	// collection. You cannot retrieve a consistent snapshot of a collection
@@ -2905,11 +2987,18 @@ type ResponsePolicy struct {
 	// Description: User-provided description for this Response Policy.
 	Description string `json:"description,omitempty"`
 
+	// GkeClusters: The list of Google Kubernetes Engine clusters to which
+	// this response policy is applied.
+	GkeClusters []*ResponsePolicyGKECluster `json:"gkeClusters,omitempty"`
+
 	// Id: Unique identifier for the resource; defined by the server (output
 	// only).
 	Id int64 `json:"id,omitempty,string"`
 
 	Kind string `json:"kind,omitempty"`
+
+	// Labels: User labels.
+	Labels map[string]string `json:"labels,omitempty"`
 
 	// Networks: List of network names specifying networks to which this
 	// policy is applied.
@@ -2941,6 +3030,40 @@ type ResponsePolicy struct {
 
 func (s *ResponsePolicy) MarshalJSON() ([]byte, error) {
 	type NoMethod ResponsePolicy
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ResponsePolicyGKECluster struct {
+	// GkeClusterName: The resource name of the cluster to bind this
+	// response policy to. This should be specified in the format like:
+	// projects/*/locations/*/clusters/*. This is referenced from GKE
+	// projects.locations.clusters.get API:
+	// https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters/get
+	GkeClusterName string `json:"gkeClusterName,omitempty"`
+
+	Kind string `json:"kind,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "GkeClusterName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty or default values are omitted from API requests. However, any
+	// non-pointer, non-interface field appearing in ForceSendFields will be
+	// sent to the server regardless of whether the field is empty or not.
+	// This may be used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "GkeClusterName") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ResponsePolicyGKECluster) MarshalJSON() ([]byte, error) {
+	type NoMethod ResponsePolicyGKECluster
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3283,17 +3406,17 @@ func (c *ChangesCreateCall) Do(opts ...googleapi.CallOption) (*Change, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Change{
 		ServerResponse: googleapi.ServerResponse{
@@ -3463,17 +3586,17 @@ func (c *ChangesGetCall) Do(opts ...googleapi.CallOption) (*Change, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Change{
 		ServerResponse: googleapi.ServerResponse{
@@ -3669,17 +3792,17 @@ func (c *ChangesListCall) Do(opts ...googleapi.CallOption) (*ChangesListResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ChangesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -3900,17 +4023,17 @@ func (c *DnsKeysGetCall) Do(opts ...googleapi.CallOption) (*DnsKey, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DnsKey{
 		ServerResponse: googleapi.ServerResponse{
@@ -4102,17 +4225,17 @@ func (c *DnsKeysListCall) Do(opts ...googleapi.CallOption) (*DnsKeysListResponse
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &DnsKeysListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4312,17 +4435,17 @@ func (c *ManagedZoneOperationsGetCall) Do(opts ...googleapi.CallOption) (*Operat
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -4512,17 +4635,17 @@ func (c *ManagedZoneOperationsListCall) Do(opts ...googleapi.CallOption) (*Manag
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedZoneOperationsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -4715,17 +4838,17 @@ func (c *ManagedZonesCreateCall) Do(opts ...googleapi.CallOption) (*ManagedZone,
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedZone{
 		ServerResponse: googleapi.ServerResponse{
@@ -4864,7 +4987,7 @@ func (c *ManagedZonesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -5013,17 +5136,17 @@ func (c *ManagedZonesGetCall) Do(opts ...googleapi.CallOption) (*ManagedZone, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedZone{
 		ServerResponse: googleapi.ServerResponse{
@@ -5171,17 +5294,17 @@ func (c *ManagedZonesGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5347,17 +5470,17 @@ func (c *ManagedZonesListCall) Do(opts ...googleapi.CallOption) (*ManagedZonesLi
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ManagedZonesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5539,17 +5662,17 @@ func (c *ManagedZonesPatchCall) Do(opts ...googleapi.CallOption) (*Operation, er
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -5698,17 +5821,17 @@ func (c *ManagedZonesSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Google
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -5765,8 +5888,8 @@ type ManagedZonesTestIamPermissionsCall struct {
 }
 
 // TestIamPermissions: Returns permissions that a caller has on the
-// specified resource. If the resource does not exist, this will return
-// an empty set of permissions, not a `NOT_FOUND` error. Note: This
+// specified resource. If the resource does not exist, this returns an
+// empty set of permissions, not a `NOT_FOUND` error. Note: This
 // operation is designed to be used for building permission-aware UIs
 // and command-line tools, not for authorization checking. This
 // operation may "fail open" without warning.
@@ -5850,17 +5973,17 @@ func (c *ManagedZonesTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &GoogleIamV1TestIamPermissionsResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -5874,7 +5997,7 @@ func (c *ManagedZonesTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*
 	}
 	return ret, nil
 	// {
-	//   "description": "Returns permissions that a caller has on the specified resource. If the resource does not exist, this will return an empty set of permissions, not a `NOT_FOUND` error. Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may \"fail open\" without warning.",
+	//   "description": "Returns permissions that a caller has on the specified resource. If the resource does not exist, this returns an empty set of permissions, not a `NOT_FOUND` error. Note: This operation is designed to be used for building permission-aware UIs and command-line tools, not for authorization checking. This operation may \"fail open\" without warning.",
 	//   "flatPath": "dns/v1/projects/{projectsId}/managedZones/{managedZonesId}:testIamPermissions",
 	//   "httpMethod": "POST",
 	//   "id": "dns.managedZones.testIamPermissions",
@@ -6009,17 +6132,17 @@ func (c *ManagedZonesUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, e
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Operation{
 		ServerResponse: googleapi.ServerResponse{
@@ -6172,17 +6295,17 @@ func (c *PoliciesCreateCall) Do(opts ...googleapi.CallOption) (*Policy, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6322,7 +6445,7 @@ func (c *PoliciesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -6471,17 +6594,17 @@ func (c *PoliciesGetCall) Do(opts ...googleapi.CallOption) (*Policy, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Policy{
 		ServerResponse: googleapi.ServerResponse{
@@ -6647,17 +6770,17 @@ func (c *PoliciesListCall) Do(opts ...googleapi.CallOption) (*PoliciesListRespon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PoliciesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -6834,17 +6957,17 @@ func (c *PoliciesPatchCall) Do(opts ...googleapi.CallOption) (*PoliciesPatchResp
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PoliciesPatchResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7002,17 +7125,17 @@ func (c *PoliciesUpdateCall) Do(opts ...googleapi.CallOption) (*PoliciesUpdateRe
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &PoliciesUpdateResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7172,17 +7295,17 @@ func (c *ProjectsGetCall) Do(opts ...googleapi.CallOption) (*Project, error) {
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &Project{
 		ServerResponse: googleapi.ServerResponse{
@@ -7332,17 +7455,17 @@ func (c *ResourceRecordSetsCreateCall) Do(opts ...googleapi.CallOption) (*Resour
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResourceRecordSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -7501,17 +7624,17 @@ func (c *ResourceRecordSetsDeleteCall) Do(opts ...googleapi.CallOption) (*Resour
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResourceRecordSetsDeleteResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -7695,17 +7818,17 @@ func (c *ResourceRecordSetsGetCall) Do(opts ...googleapi.CallOption) (*ResourceR
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResourceRecordSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -7906,17 +8029,17 @@ func (c *ResourceRecordSetsListCall) Do(opts ...googleapi.CallOption) (*Resource
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResourceRecordSetsListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8118,17 +8241,17 @@ func (c *ResourceRecordSetsPatchCall) Do(opts ...googleapi.CallOption) (*Resourc
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResourceRecordSet{
 		ServerResponse: googleapi.ServerResponse{
@@ -8295,17 +8418,17 @@ func (c *ResponsePoliciesCreateCall) Do(opts ...googleapi.CallOption) (*Response
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8445,7 +8568,7 @@ func (c *ResponsePoliciesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -8594,17 +8717,17 @@ func (c *ResponsePoliciesGetCall) Do(opts ...googleapi.CallOption) (*ResponsePol
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePolicy{
 		ServerResponse: googleapi.ServerResponse{
@@ -8770,17 +8893,17 @@ func (c *ResponsePoliciesListCall) Do(opts ...googleapi.CallOption) (*ResponsePo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePoliciesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -8870,7 +8993,7 @@ type ResponsePoliciesPatchCall struct {
 // Patch: Applies a partial update to an existing Response Policy.
 //
 //   - project: Identifies the project addressed by this request.
-//   - responsePolicy: User assigned name of the Respones Policy addressed
+//   - responsePolicy: User assigned name of the response policy addressed
 //     by this request.
 func (r *ResponsePoliciesService) Patch(project string, responsePolicy string, responsepolicy *ResponsePolicy) *ResponsePoliciesPatchCall {
 	c := &ResponsePoliciesPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -8957,17 +9080,17 @@ func (c *ResponsePoliciesPatchCall) Do(opts ...googleapi.CallOption) (*ResponseP
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePoliciesPatchResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9002,7 +9125,7 @@ func (c *ResponsePoliciesPatchCall) Do(opts ...googleapi.CallOption) (*ResponseP
 	//       "type": "string"
 	//     },
 	//     "responsePolicy": {
-	//       "description": "User assigned name of the Respones Policy addressed by this request.",
+	//       "description": "User assigned name of the response policy addressed by this request.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -9125,17 +9248,17 @@ func (c *ResponsePoliciesUpdateCall) Do(opts ...googleapi.CallOption) (*Response
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePoliciesUpdateResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -9293,17 +9416,17 @@ func (c *ResponsePolicyRulesCreateCall) Do(opts ...googleapi.CallOption) (*Respo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePolicyRule{
 		ServerResponse: googleapi.ServerResponse{
@@ -9454,7 +9577,7 @@ func (c *ResponsePolicyRulesDeleteCall) Do(opts ...googleapi.CallOption) error {
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return err
+		return gensupport.WrapError(err)
 	}
 	return nil
 	// {
@@ -9615,17 +9738,17 @@ func (c *ResponsePolicyRulesGetCall) Do(opts ...googleapi.CallOption) (*Response
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePolicyRule{
 		ServerResponse: googleapi.ServerResponse{
@@ -9802,17 +9925,17 @@ func (c *ResponsePolicyRulesListCall) Do(opts ...googleapi.CallOption) (*Respons
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePolicyRulesListResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10001,17 +10124,17 @@ func (c *ResponsePolicyRulesPatchCall) Do(opts ...googleapi.CallOption) (*Respon
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePolicyRulesPatchResponse{
 		ServerResponse: googleapi.ServerResponse{
@@ -10182,17 +10305,17 @@ func (c *ResponsePolicyRulesUpdateCall) Do(opts ...googleapi.CallOption) (*Respo
 		if res.Body != nil {
 			res.Body.Close()
 		}
-		return nil, &googleapi.Error{
+		return nil, gensupport.WrapError(&googleapi.Error{
 			Code:   res.StatusCode,
 			Header: res.Header,
-		}
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer googleapi.CloseBody(res)
 	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
+		return nil, gensupport.WrapError(err)
 	}
 	ret := &ResponsePolicyRulesUpdateResponse{
 		ServerResponse: googleapi.ServerResponse{

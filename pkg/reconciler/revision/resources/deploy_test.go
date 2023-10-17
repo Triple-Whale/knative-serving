@@ -75,7 +75,7 @@ var (
 
 	defaultQueueContainer = &corev1.Container{
 		Name:      QueueContainerName,
-		Resources: createQueueResources(&deploymentConfig, make(map[string]string), &corev1.Container{}),
+		Resources: createQueueResources(&deploymentConfig, make(map[string]string), &corev1.Container{}, false),
 		Ports:     append(queueNonServingPorts, queueHTTPPort, queueHTTPSPort),
 		ReadinessProbe: &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
@@ -342,6 +342,16 @@ func withHTTPReadinessProbe(port int) *corev1.Probe {
 			HTTPGet: &corev1.HTTPGetAction{
 				Port: intstr.FromInt(port),
 				Path: "/",
+			},
+		}}
+}
+
+func withGRPCReadinessProbe(port int) *corev1.Probe {
+	return &corev1.Probe{
+		ProbeHandler: corev1.ProbeHandler{
+			GRPC: &corev1.GRPCAction{
+				Port:    int32(port),
+				Service: nil,
 			},
 		}}
 }
@@ -903,6 +913,27 @@ func TestMakePodSpec(t *testing.T) {
 				}),
 				queueContainer(
 					withEnvVar("SERVING_READINESS_PROBE", `{"httpGet":{"path":"/","port":8080,"host":"127.0.0.1","scheme":"HTTP","httpHeaders":[{"name":"K-Kubelet-Probe","value":"queue"}]}}`),
+				),
+			}),
+	}, {
+		name: "with grpc readiness probe",
+		rev: revision("bar", "foo",
+			withContainers([]corev1.Container{{
+				Name:           servingContainerName,
+				Image:          "busybox",
+				ReadinessProbe: withGRPCReadinessProbe(v1.DefaultUserPort),
+			}}),
+			WithContainerStatuses([]v1.ContainerStatus{{
+				ImageDigest: "busybox@sha256:deadbeef",
+			}}),
+		),
+		want: podSpec(
+			[]corev1.Container{
+				servingContainer(func(container *corev1.Container) {
+					container.Image = "busybox@sha256:deadbeef"
+				}),
+				queueContainer(
+					withEnvVar("SERVING_READINESS_PROBE", `{"grpc":{"port":8080,"service":null}}`),
 				),
 			}),
 	}, {

@@ -67,7 +67,8 @@ If you're working on and changing `.proto` files:
    - If developing locally with Docker or Minikube, you can set
      `KO_DOCKER_REPO=ko.local` (preferred) or use the `-L` flag to `ko` to build
      and push locally (in this case, authentication is not needed). If
-     developing with kind you can set `KO_DOCKER_REPO=kind.local`.
+     developing with Kind you can set `KO_DOCKER_REPO=kind.local`.
+   - If you encounter an `ImagePullBackOff` error while using Minikube or Kind, it may be due to the cluster's inability to pull locally built images because of image pull policies. To resolve this issue, consider enabling the local registry: for [Minikube](https://minikube.sigs.k8s.io/docs/handbook/registry) or for [Kind](https://kind.sigs.k8s.io/docs/user/local-registry/).
 
 **Note**: You'll need to be authenticated with your `KO_DOCKER_REPO` before
 pushing images. Run `gcloud auth configure-docker` if you are using Google
@@ -152,10 +153,22 @@ Kubernetes cluster in your designated environment, if necessary.
 
 ### Deploy Knative Serving
 
-This step includes building Knative Serving, creating and pushing developer
-images, and deploying them to your Kubernetes cluster. If you're developing
-locally, set `KO_DOCKER_REPO=ko.local` (or `KO_DOCKER_REPO=kind.local` respectively)
-to avoid needing to push your images to an off-machine registry.
+- This step includes building Knative Serving, creating and pushing developer
+  images, and deploying them to your Kubernetes cluster. If you're developing
+  locally, set `KO_DOCKER_REPO=ko.local` (or `KO_DOCKER_REPO=kind.local` respectively)
+  to avoid needing to push your images to an off-machine registry.
+
+- By default, `ko` will build container images for the architecture of your local machine, 
+  but if you need to build images for a different platform (OS and architecture), 
+  you can provide `--platform` flag as follows: 
+
+  ```shell
+  # Synopsis
+  ko apply -f FILENAME [flags]
+
+  # Usage
+  ko apply --selector knative.dev/crd-install=true -Rf config/core/ --platform linux/arm64
+  ```
 
 Run:
 
