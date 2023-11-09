@@ -35,8 +35,12 @@
 #   this directory will be deleted.**
 # * `$KO_DOCKER_REPO` If not set, use ko.local as the registry.
 
+# export YAML_LIST=$(mktemp) && export REPO_ROOT_DIR=$(pwd) && ./hack/generate-yamls.sh "${REPO_ROOT_DIR}" "${YAML_LIST}"
+
 set -o errexit
 set -o pipefail
+
+KO_DOCKER_REPO="us-central1-docker.pkg.dev/shofifi/knative"
 
 readonly YAML_REPO_ROOT=${1:?"First argument must be the repo root dir"}
 readonly YAML_LIST_FILE=${2:?"Second argument must be the output file"}
@@ -56,7 +60,7 @@ readonly SERVING_HPA_YAML=${YAML_OUTPUT_DIR}/serving-hpa.yaml
 readonly SERVING_CRD_YAML=${YAML_OUTPUT_DIR}/serving-crds.yaml
 readonly SERVING_POST_INSTALL_JOBS_YAML=${YAML_OUTPUT_DIR}/serving-post-install-jobs.yaml
 
-declare -A CONSOLIDATED_ARTIFACTS
+declare CONSOLIDATED_ARTIFACTS
 CONSOLIDATED_ARTIFACTS=(
   ["${SERVING_POST_INSTALL_JOBS_YAML}"]="${SERVING_STORAGE_VERSION_MIGRATE_YAML}"
 )
